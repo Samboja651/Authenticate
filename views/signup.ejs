@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account</title>
+</head>
+<body>
+    <h1>Sign up</h1>
+    <form action="/new_user" method="post">
+        <label for="email">Email</label><br>
+        <input type="email" name="email" id="email" minlength="7" maxlength="50" required><br><br>
+        
+        <label for="password">Password</label><br>
+        <input type="password" name="password" id="password" minlength="8" maxlength="24" required><br><br>
+
+        <label for="name">Name</label><br>
+        <input type="text" name="name" id="name" min="2" max="50" required><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
