@@ -1,7 +1,8 @@
 const express = require('express');
 var request = require('request');
-const sqlite3 = require('sqlite3')
+const { PrismaClient } = require('@prisma/client')
 
+const prisma = new PrismaClient();
 const app = express();
 app.use(express.json())
 app.set('view engine', 'ejs')
@@ -27,7 +28,7 @@ app.post('/new_user', (req, res) => {
         'headers': {
         }
       };
-      request(options, function (error, response) {
+      request(options, async (error, response) =>{
         if (error) throw new Error(error);
 
         function validate(seq, password){
@@ -79,51 +80,15 @@ app.post('/new_user', (req, res) => {
         }
     
         else{
-          // create database users
-          const db = new sqlite3.Database('./users.db', (err) => {
-            if(err){
-              console.error('error creating database', err);
-            }
-            else{
-              console.log('connected to database')
-            }
-          });
-
-          // create table
-          const createTable = `
-            CREATE TABLE IF NOT EXISTS user(
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              password VARCHAR(30),
-              email VARCHAR(50),
-              name VARCHAR(25)
-            )`;
-
-          //execute table query
-          db.run(createTable, (err) => {
-            if(err){
-              console.error('Error creating table', err);
-            }
-          });
-
-          // encrypt the password
           let encrypted_password = (JSON.parse(response.body));
 
-          //add user data to table
-          const addUser = `INSERT INTO user(password, email, name)VALUES(?, ?, ?)`;
-          db.run(addUser, [encrypted_password, email, name], (err) => {
-            if(err){
-              console.log('error adding user', err);
-            }
+          const newUser = await prisma.user.create({
+            data: {
+              password: `${encrypted_password}`,
+              email: `${email}`,
+              name: `${name}`
+            },
           });
-
-          //close connection
-          process.on('exit', () => {
-            db.close((err) => {
-              if(err){
-                console.log('error closing the database');
-              }
-            });
-          });  
 
           res.send('Account created successfully');
         }
